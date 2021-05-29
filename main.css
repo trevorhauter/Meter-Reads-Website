@@ -1,0 +1,116 @@
+/*applies border and background color to header*/
+.headerStyle {
+    background-color: rgb(247, 247, 247);
+    margin-bottom: 30px;
+    border-style: solid;
+    border-color: rgb(237, 237, 237);
+    border-width: 0px 0px 1px 0px;
+}
+
+/*changes the style of the success buttons to be realmtrx color*/
+.btn-outline-success, .btn-outline-success:hover, .btn-outline-success:active, .btn-outline-success:visited {
+    border-color: rgb(144, 229, 59) !important;
+    background-color: rgb(144, 229, 59) !important;
+    color: white !important;
+}
+
+.statsContainer{
+    padding: 10px;
+    background-color: rgb(248, 249, 250);
+}
+
+/*styline for the "Feb 2021 Meter Reads" box*/
+.pageDescription{
+    width: 50%;
+    text-align: center;
+}
+
+/*adds border to the stats below big box*/
+.statsBox{
+    padding-top: 20px;
+}
+
+.graphContainer {
+/*    overflow-x: scroll;*/
+}
+
+.btn-group {
+    position: relative;
+    max-width: 100px !important;
+}
+
+/*styling for next, previous, reset buttons*/
+.sidePanels {
+    position: relative;
+/*    top: 37px;*/
+    margin-top: 37px;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+table {
+    border-collapse: separate !important;
+    border-spacing: 0;
+}
+
+/*table styling starts*/
+.tableStyle {
+    width: 100% !important;
+}
+
+.tableContainerStyle {
+    border-radius: 10px 10px 10px 10px;
+}
+
+.firstCell {
+    overflow: hidden;
+    border-top-left-radius: 10px;
+    border-radius:10px 0 0 0;
+    background-color: rgb(144, 229, 59) !important;
+    color: white;
+}
+
+.lastCell {
+    border-bottom-left-radius: 10px;
+}
+
+table th:last-child {
+    overflow: hidden;
+    border-top-right-radius: 10px;
+    border-radius:0 10px 0 0;
+}
+
+
+table tr:last-child td:last-child {
+    border-bottom-right-radius: 10px;
+}
+
+thead { 
+    background: transparent; 
+}  
+
+.tableBackground {
+    background-color: rgb(144, 229, 59) !important;
+    color: white;
+}
+
+.tblHeadBackground {
+/*
+    background-color: rgb(144, 229, 59);
+    border-radius: 10px 30px 0px 0px !important;
+    color: rgb(255, 255, 255);
+*/
+}
+
+table, thead {
+    width: auto !important;
+}
+/*table styling ends*/
+
+.aboutHeaders {
+    padding-bottom: 10px;
+}
+
+.footerStyle {
+    height: 100px;
+}
