@@ -14,7 +14,8 @@
     }
 
     if (!isset($_SESSION['client'])){
-        $_SESSION['client'] = 'greenacres';
+        $_SESSION['client'] = 'apartmentone';
+        $_SESSION['unitList'] = 5;
     }
 
     if (!isset($_SESSION['utility'])){
@@ -27,6 +28,7 @@
 
     if (isset($_GET['client'])){
         $_SESSION['client'] = $_GET['client'];
+        $_SESSION['unitList'] = $_GET['unitList'];
     }
 
     if (isset($_GET['utility'])){
@@ -57,7 +59,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RealMTRX</title>
+    <title>Meter Reads</title>
 
     <?php include "refs.php"; ?>
     
@@ -77,11 +79,11 @@
                         <h2><?php showDate(); ?> Meter Reads: 
                             <?php 
                                 if(isset($_SESSION['client'])) {
-                                    if($_SESSION['client'] == 'greenacres') {
-                                        echo "Green Acres";
+                                    if($_SESSION['client'] == 'apartmentone') {
+                                        echo "Apartment One";
                                     }
-                                    if($_SESSION['client'] == 'williams') {
-                                        echo "Williams";
+                                    if($_SESSION['client'] == 'penthouse') {
+                                        echo "Penthouse";
                                     }
                                 }
                             ?>
@@ -160,21 +162,10 @@
                         <div class="dropdown-menu">
 
                         <?php 
-                            if(isset($_SESSION['client'])){
-                                if($_SESSION['client']=='greenacres'){ 
-                                    echo '<a class="dropdown-item" href="main.php?utility=ele">Electric (KWH)</a>'; 
-                                }
-                            }
-                        ?>
+                            echo '<a class="dropdown-item" href="main.php?utility=ele">Electric (KWH)</a>';
+                            echo '<a class="dropdown-item" href="main.php?utility=nga">Natural Gas (CF)</a>';
+                            echo '<a class="dropdown-item" href="main.php?utility=water">Water (GAL)</a>';
 
-                        <?php 
-                            if(isset($_SESSION['client'])){
-                                if($_SESSION['client']=='williams'){ 
-                                    echo '<a class="dropdown-item" href="main.php?utility=ele">Electric (KWH)</a>';
-                                    echo '<a class="dropdown-item" href="main.php?utility=cf">Natural Gas (CF)</a>';
-                                    echo '<a class="dropdown-item" href="main.php?utility=wtr">Water (GAL)</a>';
-                                }
-                            }
                         ?>
 
                         </div>
@@ -218,10 +209,10 @@
                                 if($_SESSION['utility'] == 'ele'){
                                     echo '(KWH)';
                                 }
-                                if($_SESSION['utility'] == 'cf'){
+                                if($_SESSION['utility'] == 'nga'){
                                     echo '(CF)';
                                 }
-                                if($_SESSION['utility'] == 'wtr'){
+                                if($_SESSION['utility'] == 'water'){
                                     echo '(GAL)';
                                 }
                             }
@@ -252,10 +243,10 @@
                                     if($_SESSION['utility'] == 'ele'){
                                         echo '(KWH)';
                                     }
-                                    if($_SESSION['utility'] == 'cf'){
+                                    if($_SESSION['utility'] == 'nga'){
                                         echo '(CF)';
                                     }
-                                    if($_SESSION['utility'] == 'wtr'){
+                                    if($_SESSION['utility'] == 'water'){
                                         echo '(GAL)';
                                     }
                                 }
@@ -282,10 +273,10 @@
                         if($_SESSION['utility'] == 'ele'){
                             echo '(KWH)';
                         }
-                        if($_SESSION['utility'] == 'cf'){
+                        if($_SESSION['utility'] == 'nga'){
                             echo '(CF)';
                         }
-                        if($_SESSION['utility'] == 'wtr'){
+                        if($_SESSION['utility'] == 'water'){
                             echo '(GAL)';
                         }
                     }

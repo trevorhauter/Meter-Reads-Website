@@ -19,7 +19,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RealMTRX</title>
+    <title>Meter Reads</title>
 
     <?php include "refs.php"; ?>
     
@@ -39,23 +39,23 @@
             <center>
                 <h2>What We Do</h2>
                 <hr>
-                <h3 class="aboutHeaders">Integrated Tenant Billing and Utility Processing</h3>
-                <p>We process and store your utility bills on our secure, cloud-based architecture so you can have 24/7 access to utility analytics and downloadable copies of every bill.  We guarantee no late fees and our software works directly with your accounting system offering seamless communication between A/P and Operations.</p>
+                <h3 class="aboutHeaders">Utility Billing</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
             </center>
 
             <div class="row">
 
                 <div class="col-lg-6">
                     <center>
-                        <h3 class="aboutHeaders">Billing Solutions</h3>
-                        <p>We provide alternative utility billing solutions such as submetering and RUBS.  Fairly and accurately splitting up utility spend within your property saves you money and increases sustainability.</p>
+                        <h3 class="aboutHeaders">Usage Reports</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur</p>
                     </center>
                 </div>
 
                 <div class="col-lg-6">
                     <center>
-                        <h3 class="aboutHeaders">Utility Counsel and Recommendations</h3>
-                        <p>We can help future-proof your business by helping implement sustainability practices and environmental initiatives.  Our team of experienced consultants will ensure that you're using energy as efficiently as possible and recuperating all of your costs.</p>
+                        <h3 class="aboutHeaders">Meter Reads</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur</p>
                     </center>
                 </div>
 

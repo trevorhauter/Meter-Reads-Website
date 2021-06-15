@@ -79,15 +79,8 @@ function createDateSelection() {
 
 //displays the date in main box
 function showDate(){
-    if($_SESSION['client'] == 'greenacres'){
-        $activeDate = date('F Y', strtotime(date('Y-m-d')." +" . $_SESSION['monthDiff'] . "month"));
-    }
-    if($_SESSION['client'] == 'williams'){
-        //special logic for the first of the month. The Williams is one day behind, so if its displaying the active date and its the first of the month there won't even be a read, so it sets it a day back. otherwise it proceeds as normal
         $activeDateMonth = date('Y-m-d', strtotime(date('Y-m-d')." +" . $_SESSION['monthDiff'] . "month"));
         $activeDate =  date('F Y',(strtotime ( '-1 day' , strtotime ($activeDateMonth))));
-    }
-    
     echo $activeDate;
 }
 
@@ -98,7 +91,8 @@ function prevMonth(){
     
 //    subtracts the session variable to get the month we are currently on goes like (-1 month) for prev month
     $activeDate = date('Y-m-d', strtotime(date('Y-m-d')." +" . $_SESSION['monthDiff'] . "month"));
-
+    $activeDate =  date('Y-m-d',(strtotime ( '-1 day' , strtotime ($activeDate))));
+    
      //    indicates if the graph displayed is of the current month or not
     $currentDate = date("Y-m");
     $activeMonth = date("Y-m", strtotime($activeDate));
@@ -107,13 +101,6 @@ function prevMonth(){
         $currentMonthActive = true;
     } else {
         $currentMonthActive = false;
-    }
-    
-    //williams is a day behind on the reads so this accounts for that
-    if(isset($_SESSION['client'])) {
-        if($_SESSION['client'] == 'williams') {
-            $activeDate =  date('Y-m-d',(strtotime ( '-1 day' , strtotime ($activeDate))));
-        }
     }
     
     //checks to see if previous month has any data - if not it resets the variable and doesn't allow the change
@@ -156,6 +143,7 @@ function nextMonth(){
     
 //    subtracts the session variable to get the month we are currently on goes like (-1 month) for prev month
     $activeDate = date('Y-m-d', strtotime(date('Y-m-d')." +" . $_SESSION['monthDiff'] . "month"));
+    $activeDate =  date('Y-m-d',(strtotime ( '-1 day' , strtotime ($activeDate))));
     //    indicates if the graph displayed is of the current month or not
     $currentDate = date("Y-m");
     $activeMonth = date("Y-m", strtotime($activeDate));
@@ -165,13 +153,6 @@ function nextMonth(){
         $currentMonthActive = true;
     } else {
         $currentMonthActive = false;
-    }
-    
-    //williams is a day behind on the reads so this accounts for that
-    if(isset($_SESSION['client'])) {
-        if($_SESSION['client'] == 'williams') {
-            $activeDate =  date('Y-m-d',(strtotime ( '-1 day' , strtotime ($activeDate))));
-        }
     }
     
     //checks to see if previous month has any data - if not it resets the variable and doesn't allow the change
@@ -213,7 +194,7 @@ function monthExists($activeDate){
     
 //    gets the last day of the date passed to function
     $lastDay = date("Y-m-t", strtotime($activeDate));
-    
+
     if($currentMonthActive == true){
         //    searches the array for current date to see if it exists
         $dayKeys = array_keys(array_column($dataBase, 'date'), $activeDate);   
@@ -235,126 +216,57 @@ function monthExists($activeDate){
 function connect(){
     global $connection, $unitList;
     //each client has a different database, so the proper one is connected to
-    if(isset($_SESSION['client'])){
-        if($_SESSION['client'] == 'greenacres'){
-            
-            if($connection){
-                mysqli_close($connection);
-            }
-            
-            $connection = mysqli_connect('localhost', 'root', '', 'green acres db');
-            if(!$connection) {
-                die("Database Connection Failed");
-            }
-            
-            $unitList = array(1=>'1',2=>'2',3=>'3',4=>'4',5=>'5',6=>'6',7=>'7',8=>'8',9=>'9',10=>'10',11=>'11',12=>'12',13=>'14/13');
-            
-        }
-        if($_SESSION['client'] == 'williams'){
-            
-            if($connection){
-                mysqli_close($connection);
-            }
-            
-            $connection = mysqli_connect('localhost', 'root', '', 'williams db');
-            if(!$connection) {
-                die("Database Connection Failed");
-            }
-            
-            $unitList = array(1=>'101',2=>'103',3=>'104',4=>'105',5=>'106',6=>'107',7=>'108',8=>'201',9=>'202',10=>'203',11=>'204',12=>'205',13=>'206',14=>'207',15=>'208',16=>'209',17=>'210',18=>'211',19=>'212',20=>'213',21=>'214',22=>'301',23=>'302',24=>'303',25=>'304',26=>'401',27=>'402',28=>'403',29=>'404');
-            
-        }
+    if($connection){
+        mysqli_close($connection);
     }
+            
+    $connection = mysqli_connect('localhost', 'root', '', 'meterreadswebsite');
+    if(!$connection) {
+        die("Database Connection Failed");
+    }
+    
+    $unitList = $_SESSION['unitList'];
 }
 
 //gathers all the information into a multi-dimensional array so the database doesn't have to be queried over and over again
 function readDB(){
     global $connection, $dataBase, $formattedUtilityType, $stats;
+    
     // gets all info from database
-    $query = "SELECT * FROM meterreads";
-
+    $query = "SELECT * FROM meterreads WHERE facility = '" . $_SESSION['client'] . "' AND utility = '" .  $_SESSION['utility'] . "'";
     //sends the actual command to the db
     $readData = mysqli_query($connection, $query);
-
+    
     //  if the adddata query failed, kill page
     if(!$readData){
-        die('QUERY FAILED' . mysqli_error());
+        die('QUERY FAILED');
     }
+
+    //    adds each line from the database into an array creating a multidimensional array
+    while($variable = mysqli_fetch_assoc($readData)) {
+        $dataBase[] = $variable;
+    }
+
+    $_SESSION['db'] = $dataBase;
     
-    //logic for each client. reads the database and sets it to a session variable. if its already set it just reassigns the variable
-    If($_SESSION['client'] == 'greenacres'){
-        If(!isset($_SESSION['greenacresdatabase'])) {
-            //    adds each line from the database into an array creating a multidimensional array
-            while($variable = mysqli_fetch_assoc($readData)) {
-                $dataBase[] = $variable;
-            }
-            
-            $_SESSION['greenacresdatabase'] = $dataBase;
-        } else {
-            $dataBase = $_SESSION['greenacresdatabase'];
-        }
-    }
-    
-    //logic for each client. reads the database and sets it to a session variable. if its already set it just reassigns the variable
-    If($_SESSION['client'] == 'williams'){
-        If(!isset($_SESSION['williamsdatabase'])) {
-            //    adds each line from the database into an array creating a multidimensional array
-            while($variable = mysqli_fetch_assoc($readData)) {
-                $dataBase[] = $variable;
-            }
-            
-            $_SESSION['williamsdatabase'] = $dataBase;
-        } else {
-            $dataBase = $_SESSION['williamsdatabase'];
-        }
-    }
     
     //gets the stats for each of the properties
-    $query = "SELECT * FROM stats";
-
+    $query = "SELECT * FROM stats WHERE facility = '" . $_SESSION['client'] . "'";
     $readData = mysqli_query($connection, $query);
 
     //  if the adddata query failed, kill page
     if(!$readData){
-        die('QUERY FAILED' . mysqli_error());
-    }
-    
-    //logic for each client. reads the database and sets it to a session variable. if its already set it just reassigns the variable
-    If($_SESSION['client'] == 'greenacres'){
-        If(!isset($_SESSION['greenacresstats'])) {
-            //    adds each line from the database into an array creating a multidimensional array
-            while($variable = mysqli_fetch_assoc($readData)) {
-                $stats[] = $variable;
-            }
-            
-            $_SESSION['greenacresstats'] = $stats;
-        } else {
-            $stats = $_SESSION['greenacresstats'];
-        }
-    }
-    
-    //logic for each client. reads the database and sets it to a session variable. if its already set it just reassigns the variable
-    If($_SESSION['client'] == 'williams'){
-        If(!isset($_SESSION['williamsstats'])) {
-            //    adds each line from the database into an array creating a multidimensional array
-            while($variable = mysqli_fetch_assoc($readData)) {
-                $stats[] = $variable;
-            }
-            
-            $_SESSION['williamsstats'] = $stats;
-        } else {
-            $stats = $_SESSION['williamsstats'];
-        }
+        die('QUERY FAILED');
     }
     
     //gets the proper abbreviation of units for each utility
     If($_SESSION['utility'] == 'ele') {
         $formattedUtilityType = 'KWH';
     }
-    If($_SESSION['utility'] == 'cf') {
+    If($_SESSION['utility'] == 'nga') {
         $formattedUtilityType = 'CF';
     }
-    If($_SESSION['utility'] == 'wtr') {
+    If($_SESSION['utility'] == 'water') {
         $formattedUtilityType = 'GAL'; 
     }
     
@@ -444,11 +356,11 @@ function writeUsageDays(){
 
 function createReadsTable(){
     global $dataBase, $connection, $activeDate, $lastActiveDay, $activeMonthName, $activeMonthAbrev, $currentDate, $currentDay, $activeMonth, $currentMonthActive, $unitList;
+    $unitList = $_SESSION['unitList'];
+    $rows = $unitList; // define number of rows
     
-    $rows = count($unitList); // define number of rows
-
     $cols = $lastActiveDay;
-    
+
     // loops through to create the rows
     for($tr=1;$tr<=$rows;$tr++){
 
@@ -456,9 +368,9 @@ function createReadsTable(){
                 
             //if its creating the last cell, it gives it a special class for the border radius
             if($tr == $rows) {
-                echo "<th class='lastCell'>$unitList[$tr]</th>"; 
+                echo "<th class='lastCell'>$tr</th>"; 
             } else {
-                echo "<th>$unitList[$tr]</th>";   
+                echo "<th>$tr</th>";   
             }
         
             //  loops through to create the columns
@@ -471,22 +383,16 @@ function createReadsTable(){
                 
                 //  searches the array by date - returning the key for each read that day $currentDate is just
                 $dayKeys = array_keys(array_column($dataBase, 'date'), $activeMonth . '-' . $dayNum);
-    
+
                 // variable for is there is no read present for value
                 $readFound = false;
                 
                 //  loops through the keys until it finds the correct one by unit then it writes it to the table and loop restarts
                 foreach ($dayKeys as $key){
-                    //checks for a comma in the string. smh its because there is one read with a comma in it for the williams
-                    if( strpos($dataBase[$key]['meterread'], ',') !== false ) {
-                        $meterread = str_replace(',', '', $dataBase[$key]['meterread']);  
-                    } else {
-                        $meterread = round($dataBase[$key]['meterread']);        
-                    }
+                    $meterread = round($dataBase[$key]['meter_read']);        
                     $unit = $dataBase[$key]['unit'];
-
                     //grabs the meter read
-                    if($unitList[$tr] == $unit && $_SESSION['utility'] == $dataBase[$key]['type']){
+                    if($tr == $unit){
                         $readFound = true;
                         echo "<td>$meterread</td>";
                     }
@@ -505,13 +411,13 @@ function createReadsTable(){
 function createUsageTable(){
     global $dataBase, $connection, $activeDate, $lastActiveDay, $activeMonthName, $activeMonthAbrev, $currentDate, $currentDay, $activeMonth, $currentMonthActive, $unitList, $mtdUsage;
     
-    $rows = count($unitList); // define number of rows
+    $unitList = $_SESSION['unitList'];
+    $rows = $unitList; // define number of rows
 
     $cols = $lastActiveDay;
     
     //creates the array that will contain the month to date usage for each unit
 //    $mtdUsage = [];
-    
 //    loops through to create the rows
     for($tr=1;$tr<=$rows;$tr++){
 //        $mtdUsage += [$unitList[$tr] => 0];
@@ -519,9 +425,9 @@ function createUsageTable(){
             
             //if its creating the last cell, it gives it a special class for the border radius
             if($tr == $rows) {
-                echo "<th class='lastCell'>$unitList[$tr]</th>"; 
+                echo "<th class='lastCell'>$tr</th>"; 
             } else {
-                echo "<th>$unitList[$tr]</th>";   
+                echo "<th>$tr</th>";   
             }
         
             for($td=1;$td<=$cols;$td++){
@@ -540,17 +446,11 @@ function createUsageTable(){
                 $read2Found = false;
 //                loops through the keys until it finds the correct one by unit then it moves to the day after to calculate usage
                 foreach ($dayKeys as $key){
-                    //checks for a comma in the string. smh its because there is one read with a comma in it for the williams
-                    if( strpos($dataBase[$key]['meterread'], ',') !== false ) {
-                        $meterread = str_replace(',', '', $dataBase[$key]['meterread']);  
-                    } else {
-                        $meterread = round($dataBase[$key]['meterread']);        
-                    }
-                    
+                    $meterread = round($dataBase[$key]['meter_read']);        
                     $unit = $dataBase[$key]['unit'];
 
 //                        grabs the first meter read
-                    if($unitList[$tr] == $unit && $_SESSION['utility'] == $dataBase[$key]['type']){
+                    if($tr == $unit){
                         $read1Found = true;
                         $prevRead = $meterread;
                     }    
@@ -570,17 +470,11 @@ function createUsageTable(){
 
 //                loops through the keys until it finds the correct one by unit then it calculates usage
                 foreach ($dayKeys as $key){
-                    //checks for a comma in the string. smh its because there is one read with a comma in it for the williams
-                    if( strpos($dataBase[$key]['meterread'], ',') !== false ) {
-                        $meterread = str_replace(',', '', $dataBase[$key]['meterread']);  
-                    } else {
-                        $meterread = round($dataBase[$key]['meterread']);        
-                    }
-                    
+                    $meterread = round($dataBase[$key]['meter_read']);        
                     $unit = $dataBase[$key]['unit'];
                     
                     //grabs the second meter read
-                    if($unitList[$tr] == $unit && $_SESSION['utility'] == $dataBase[$key]['type']){
+                    if($tr == $unit){
                         $read2Found = true;
                         $currentRead = $meterread;
                     }        
@@ -613,8 +507,8 @@ function createUsageTable(){
 
 function monthToDateUsage(){
     global $dataBase, $connection, $activeDate, $lastActiveDay, $activeMonthName, $activeMonthAbrev, $currentDate, $currentDay, $activeMonth, $currentMonthActive, $unitList, $mtdUsage, $formattedUtilityType;
-    
-    $rows = count($unitList); // define number of rows
+    $unitList = $_SESSION['unitList'];
+    $rows = $unitList; // define number of rows
     
     $cols = 1;
     
@@ -625,12 +519,12 @@ function monthToDateUsage(){
             
             //if its creating the last cell, it gives it a special class for the border radius
             if($tr == $rows) {
-                echo "<th class='lastCell'>$unitList[$tr]</th>"; 
+                echo "<th class='lastCell'>$tr</th>"; 
             } else {
-                echo "<th>$unitList[$tr]</th>";   
+                echo "<th>$tr</th>";   
             }
         
-            $mtdUsageFormatter = number_format($mtdUsage[$unitList[$tr]]);
+            $mtdUsageFormatter = number_format($mtdUsage[$tr]);
             for($td=1;$td<=$cols;$td++){
                 echo "<td>$mtdUsageFormatter&nbsp;$formattedUtilityType</td>";
             }
@@ -652,46 +546,38 @@ function findTotalAllTimeUsage(){
     $dateDiff = $today->diff($firstDay);
     
     $totalDays = $dateDiff->format('%a');
+    $unitList = $_SESSION['unitList'];
     
     //checks the database to see if the stats were updated today
-    $todaysStats = array_keys(array_column($stats, 'date'), date("Y-m-d"));
+//    $todaysStats = array_keys(array_column($stats, 'date'), date("Y-m-d"));
        
     //checks the returned keys to see if they match the current utility. if so, data is marked true meaning that data is already in the database for the day and can be pulled from there
-    if(!empty($todaysStats)){
-        foreach($todaysStats as $key){
-            if($stats[$key]['type'] == $_SESSION['utility']){
-                $dataFound = true;
-            }
-        }   
-    }
-    
-    
+//    if(!empty($todaysStats)){
+//        foreach($todaysStats as $key){
+//            if($stats[$key]['type'] == $_SESSION['utility']){
+//                $dataFound = true;
+//            }
+//        }   
+//    }
+
     //if todays stats hasn't been updated in the database, it updates them (takes a while, but only happens once a day per client per utility)
     if($dataFound == false){
         //loops through each day to calculate the total usage all time
         for ($x = $totalDays; $x > 0; $x--) {
-        $firstReadDate = date('Y-m-d',(strtotime ('-' . $x . 'day', strtotime (date("Y-m-d")))));
-        $secondReadDate = date('Y-m-d',(strtotime ('-' . ($x - 1) . 'day', strtotime (date("Y-m-d")))));
+            $firstReadDate = date('Y-m-d',(strtotime ('-' . $x . 'day', strtotime (date("Y-m-d")))));
+            $secondReadDate = date('Y-m-d',(strtotime ('-' . ($x - 1) . 'day', strtotime (date("Y-m-d")))));
         //loops through the units to grab each read for each day
-            for($y = 1; $y <= 13; $y++) {
+            for($y = 1; $y <= $unitList; $y++) {
                 $dayKeys = array_keys(array_column($dataBase, 'date'), $firstReadDate);
-
                 // variable for is there is no read present for value
                 $read1Found = false;
                 $read2Found = false;
                 //loops through the keys until it finds the correct one by unit then it moves to the day after to calculate usage
                 foreach ($dayKeys as $key){
-                    //checks for a comma in the string. smh its because there is one read with a comma in it for the williams
-                    if( strpos($dataBase[$key]['meterread'], ',') !== false ) {
-                        $meterread = str_replace(',', '', $dataBase[$key]['meterread']);  
-                    } else {
-                        $meterread = round($dataBase[$key]['meterread']);        
-                    }
-
+                    $meterread = round($dataBase[$key]['meter_read']);        
                     $unit = $dataBase[$key]['unit'];
-
     //                        grabs the first meter read
-                    if($unitList[$y] == $unit && $_SESSION['utility'] == $dataBase[$key]['type']){
+                    if($y == $unit){
                         $read1Found = true;
                         $prevRead = $meterread;
                     }    
@@ -700,35 +586,20 @@ function findTotalAllTimeUsage(){
                 $dayKeys = array_keys(array_column($dataBase, 'date'), $secondReadDate);
 
                 foreach ($dayKeys as $key){
+                    $meterread = round($dataBase[$key]['meter_read']);        
+                    $unit = $dataBase[$key]['unit'];
 
-                        //checks for a comma in the string. smh its because there is one read with a comma in it for the williams
-                        if( strpos($dataBase[$key]['meterread'], ',') !== false ) {
-                            $meterread = str_replace(',', '', $dataBase[$key]['meterread']);  
-                        } else {
-                            $meterread = round($dataBase[$key]['meterread']);        
-                        }                
-
-                        $unit = $dataBase[$key]['unit'];
-
-                        //grabs the second meter read
-                        if($unitList[$y] == $unit && $_SESSION['utility'] == $dataBase[$key]['type']){
-                            $read2Found = true;
-                            $currentRead = $meterread;
-                        }        
-                    }
+                    //grabs the second meter read
+                    if($y == $unit){
+                        $read2Found = true;
+                        $currentRead = $meterread;
+                    }        
+                }
 
     //                calculates and writes usage then loop restarts
                     if($read1Found != false && $read2Found != false){
                         $usage = $currentRead - $prevRead;
-                        
-                        //if the usage is negative, don't add it to all time users. excludes green acres due to their weird meter changes. will account for later
-                        if($_SESSION['client'] != 'greenacres'){
-                            if($usage >= 0) {
-                                $allTimeUsage = $allTimeUsage + $usage;
-                            }
-                        } else{
-                            $allTimeUsage = $allTimeUsage + $usage;
-                        }
+                        $allTimeUsage = $allTimeUsage + $usage;
 
                         $prevRead = 0;
                         $currentRead = 0;
@@ -738,7 +609,7 @@ function findTotalAllTimeUsage(){
             }
         }
         //updates the database with the freshly calculated all time usage stat. only triggers if the data hasn't been found
-        updateStats();
+//        updateStats();
     } else {
         //if data is found, loops through the database to find the proper value
         foreach ($todaysStats as $key){
@@ -754,66 +625,18 @@ function findTotalAllTimeUsage(){
     echo "<h5>$allTimeUsageFormatted $formattedUtilityType</h5>";
 }
 
-//updates the databases stats tables with all time usage. only does one utility per client at a time
-function updateStats(){
-    global $connection, $allTimeUsage, $stats;
-    
-    $today = date("Y-m-d");
-    
-    If($_SESSION['utility'] == 'ele'){
-        $query = "UPDATE stats SET stat='alltimeusage',type='ele',value='$allTimeUsage',date='$today' WHERE id=1";
-    }
-    If($_SESSION['utility'] == 'cf'){
-        $query = "UPDATE stats SET stat='alltimeusage',type='cf',value='$allTimeUsage',date='$today' WHERE id=2";
-    }
-    If($_SESSION['utility'] == 'wtr'){
-        $query = "UPDATE stats SET stat='alltimeusage',type='wtr',value='$allTimeUsage',date='$today' WHERE id=3";
-    }
-    
-    $addData = mysqli_query($connection, $query);
-    if(!$addData){
-        die("QUERY FAILED" . mysqli_error($connection));
-    }
-    
-    //after the db has been updated, it updates the stats variable to reflect the updated stats in the db
-    $query = "SELECT * FROM stats";
-
-    $readData = mysqli_query($connection, $query);
-
-    //  if the adddata query failed, kill page
-    if(!$readData){
-        die('QUERY FAILED' . mysqli_error());
-    }
-    
-    while($variable = mysqli_fetch_assoc($readData)) {
-            $stats[] = $variable;
-    }
-
-    if($_SESSION['client'] == 'greenacres') {
-        $_SESSION['greenacresstats'] = $stats;   
-    }
-    
-    if($_SESSION['client'] == 'williams') {
-        $_SESSION['williamsstats'] = $stats;   
-    }
-     
-}
-
 function findTotalMonthUsage(){
     global $dataBase, $connection, $activeDate, $lastActiveDay, $activeMonthName, $activeMonthAbrev, $currentDate, $currentDay, $activeMonth, $currentMonthActive, $monthUsage, $dailyUsage, $unitList, $formattedUtilityType, $mtdUsage;
     
     $monthUsage = 0;
     
-    $rows = count($unitList); // define number of rows
+    $unitList = $_SESSION['unitList'];
+    
+    $rows = $unitList; // define number of rows
     
 //if its current month, cols = current day, otherwise it = last day of month
     if($currentMonthActive == true){
-        if($_SESSION['client'] == 'greenacres'){
-            $cols = $currentDay;// define number of columns   
-        }
-        if($_SESSION['client'] == 'williams'){
-            $cols = $currentDay - 1;// define number of columns   
-        }
+        $cols = $currentDay;// define number of columns   
     } else {
         $cols = $lastActiveDay;
     }
@@ -826,7 +649,7 @@ function findTotalMonthUsage(){
 //    loops through to create the rows
     for($tr=1;$tr<=$rows;$tr++){
             //mtd needs to be talied for each row because each row is a unit
-            $mtdUsage += [$unitList[$tr] => 0];
+            $mtdUsage += [$tr => 0];
             for($td=1;$td<=$cols;$td++){
  //            loops through to create the columns               
                 $prevRead = 0;
@@ -844,15 +667,16 @@ function findTotalMonthUsage(){
 //                loops through the keys until it finds the correct one by unit then it moves to the day after to calculate usage
                 foreach ($dayKeys as $key){
                     //checks for a comma in the string. smh its because there is one read with a comma in it for the williams
-                    if( strpos($dataBase[$key]['meterread'], ',') !== false ) {
-                        $meterread = str_replace(',', '', $dataBase[$key]['meterread']);  
+                    if( strpos($dataBase[$key]['meter_read'], ',') !== false ) {
+                        $meterread = str_replace(',', '', $dataBase[$key]['meter_read']);  
                     } else {
-                        $meterread = round($dataBase[$key]['meterread']);        
+                        $meterread = round($dataBase[$key]['meter_read']);        
                     }
                     $unit = $dataBase[$key]['unit'];
 
 //                        grabs the first meter read
-                    if($unitList[$tr] == $unit && $_SESSION['utility'] == $dataBase[$key]['type']){
+//                    if($tr == $unit && $_SESSION['utility'] == $dataBase[$key]['type']){
+                    if($tr == $unit){
                         $read1Found = true;
                         $prevRead = $meterread;
                     }    
@@ -872,17 +696,10 @@ function findTotalMonthUsage(){
 
 //                loops through the keys until it finds the correct one by unit then it calculates usage
                 foreach ($dayKeys as $key){
-                    //checks for a comma in the string. smh its because there is one read with a comma in it for the williams
-                    if( strpos($dataBase[$key]['meterread'], ',') !== false ) {
-                        $meterread = str_replace(',', '', $dataBase[$key]['meterread']);  
-                    } else {
-                        $meterread = round($dataBase[$key]['meterread']);        
-                    }
-                    
+                    $meterread = round($dataBase[$key]['meter_read']);        
                     $unit = $dataBase[$key]['unit'];
                     
-                    //grabs the second meter read
-                    if($unitList[$tr] == $unit && $_SESSION['utility'] == $dataBase[$key]['type']){
+                    if($tr == $unit){
                         $read2Found = true;
                         $currentRead = $meterread;
                         
@@ -899,7 +716,7 @@ function findTotalMonthUsage(){
                 if($read1Found != false && $read2Found != false){
                     $usage = $currentRead - $prevRead;
 //                    $dailyUsage[$td] = $dailyUsage[$td] + $usage;
-                    $mtdUsage[$unitList[$tr]] = $mtdUsage[$unitList[$tr]] + $usage;
+                    $mtdUsage[$tr] = $mtdUsage[$tr] + $usage;
                     $dailyUsage[$td] = $dailyUsage[$td] + $usage;
                     $monthUsage = $monthUsage + $usage;
                     $prevRead = 0;
@@ -915,8 +732,7 @@ function findTotalMonthUsage(){
 
 function findAvgMonthDailyUsage(){
     global $monthUsage, $currentMonthActive, $lastActiveDay, $formattedUtilityType;
-    
-    if($monthUsage = 0){
+    if($monthUsage != 0){
         if($currentMonthActive == true){
         $day = intval(date('j')) - 1;
         $avgUsage = round($monthUsage / $day);

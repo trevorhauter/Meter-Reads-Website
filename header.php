@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light headerStyle">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#"><img src="Images/realmtrx.png" alt="realmtrx logo" width="150" height="44"></a>
+    <a class="navbar-brand" href="#"><h3>Company Logo</h3></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -14,8 +14,8 @@
               Properties  
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="main.php?client=greenacres&utility=ele&page=meterreads&monthdiff=0">Green Acres</a></li>
-            <li><a class="dropdown-item" href="main.php?client=williams&page=meterreads&monthDiff=0">Williams</a></li>
+            <li><a class="dropdown-item" href="main.php?client=apartmentone&utility=ele&page=meterreads&monthdiff=0&unitList=5">Apartment One</a></li>
+            <li><a class="dropdown-item" href="main.php?client=penthouse&page=meterreads&monthDiff=0&unitList=10">Penthouse</a></li>
           </ul>
         </li>
         <li class="nav-item">

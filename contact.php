@@ -18,7 +18,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RealMTRX</title>
+    <title>Meter Reads</title>
 
     <?php include "refs.php"; ?>
     
@@ -75,9 +75,9 @@
 
         <div class="col-lg-4">
             <h3>Let's see how we can help.</h3>
-            <p>RealMTRX is equipped to work with real estate portfolios of all different sizes.  Contact us for a free demo to see exactly how we can help streamline your business and make your life easier.</p>
-            <h3>RealMTRX</h3>
-            <p>534 Johnnie Dodds Boulevard, Mount Pleasant, South Carolina 29464, United States</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+            <h3>Meter Reads Company</h3>
+            <p>1234 Lucky Lane, Cincinnati OH 45069, United States</p>
         </div>
 
         <div class="col-lg-2">
